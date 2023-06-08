@@ -35,18 +35,6 @@ app.get("/cars/:id", cors(corsOptions), async (req, res) => {
 });
 
 //example3
-// app.get('/cars?:make', cors(corsOptions), async (req, res) =>{
-//  // app.get('/cars', cors(corsOptions), async (req, res) =>{
-// const carMake = req.params.make;
-
-// const result = await promisePool.query(`SELECT * FROM car WHERE  make =?`, [carMake,]);
-// //const result = await promisePool.query(`SELECT * FROM car WHERE make = Ford`)
-// if (result.error) console.log(error.message);
-  
-// const body = result;
-// res.send(body);
-
-// });
 
 
 app.get('/cars', cors(corsOptions), async (req, res) => {
@@ -67,9 +55,69 @@ app.get('/cars', cors(corsOptions), async (req, res) => {
 
 });
 
+//////Example4
 
 
-app.listen(8080, () => {
+// app.post('/cars/', cors(corsOptions), async (req, res) => {
+//   const {make , model,color ,price } = req.body
+
+// // try{
+//   const [result] = await promisePool.query (`
+//   INSERT INTO car (make, model, color, price)
+//   VALUES (?, ?, ?, ?)
+// `, [make, model, color, price]);
+
+//   const body = result;
+//   res.send =(body) 
+
+// // }catch (error) {
+// //   console.log(error);
+// //   res.status(500).json({ error: 'Failed to add car' });
+// // }
+ 
+// })
+/////Example 4
+
+app.post('/cars', cors(corsOptions), async (req, res) => {
+
+  //Destructuring req.body
+
+  const { make, model, color, price } = req.body;
+
+  //Query to insert car on table
+
+  const insertCar = await promisePool.query(
+
+      `INSERT INTO car (make, model, price, color) VALUES (?,?,?,?)`,
+
+      [make, model, price, color]
+
+  );
+
+  //Getting the Id from the newly inserted item
+
+  const carId = insertCar[0].insertId;
+
+
+
+
+  // Query to return the newly inserted item
+
+  const [carInserted] = await promisePool.query(
+
+      `SELECT * FROM car WHERE car_id = ? `,
+
+      [carId]
+
+  );
+
+  res.send(carInserted);
+
+});
+
+
+
+app.listen(PORT, () => {
   console.log(`Express web API running on port: ${PORT}.`);
 });
 
